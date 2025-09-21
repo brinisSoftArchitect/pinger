@@ -1,0 +1,10 @@
+{
+  "ai.wallah.pro": "https://ai.brimind.pro",
+  "blog.old-site.com": "https://new-site.com/blog",
+  "www.example.com": "https://newexample.com",
+  "legacy-domain.com": "https://modern-domain.com",
+  "temp-site.com": "https://permanent-site.com",
+  "docs.old-company.com": "https://new-company.com/documentation",
+  "support.legacy.com": "https://help.modern.com",
+  "shop.old-store.com": "https://new-store.com"
+}
