@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Configuration
-const CONFIG_FILE = './redirects.json';
+const CONFIG_FILE = './redirector/redirects.json';
 const PORT = 4004;
 
 // Load redirects from JSON file
