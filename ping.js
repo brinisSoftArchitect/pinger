@@ -5,7 +5,7 @@ const http = require('http');
 const config = {
     urls: [
         'https://buy100lowmarketcap.onrender.com/dashboard.html',
-        'https://github.com',
+        'https://licenseserver-o5cw.onrender.com',
         'https://stackoverflow.com',
         'http://example.com',
         // Add your URLs here
