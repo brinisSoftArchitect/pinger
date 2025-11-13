@@ -1,6 +1,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const url = require('url');
 
 // Configuration
 const CONFIG_FILE = './redirector/redirects.json';
@@ -12,8 +13,9 @@ function loadRedirects() {
     if (!fs.existsSync(CONFIG_FILE)) {
       // Create default config file
       const defaultConfig = {
-        "old-site.com": "https://new-site.com",
-        "blog.old-site.com": "https://new-site.com/blog", 
+        "ai.wallah.pro": "https://ai.brimind.pro",
+        "ai.brimind.pro": "https://chat.brimind.pro",
+        "test.wallah.pro": "https://ai.brimind.pro",
         "www.example.com": "https://newexample.com",
         "legacy-domain.com": "https://modern-domain.com"
       };
@@ -51,6 +53,37 @@ function findRedirect(host, redirects) {
   return null;
 }
 
+// Build full redirect URL with path and query params
+function buildRedirectUrl(baseUrl, originalUrl) {
+  const parsedOriginal = url.parse(originalUrl);
+  const parsedBase = url.parse(baseUrl);
+  
+  // Combine base URL with original path and query
+  let fullUrl = baseUrl;
+  
+  // Remove trailing slash from base URL if present
+  if (fullUrl.endsWith('/')) {
+    fullUrl = fullUrl.slice(0, -1);
+  }
+  
+  // Add path if it exists and isn't just "/"
+  if (parsedOriginal.pathname && parsedOriginal.pathname !== '/') {
+    fullUrl += parsedOriginal.pathname;
+  }
+  
+  // Add query string if it exists
+  if (parsedOriginal.search) {
+    fullUrl += parsedOriginal.search;
+  }
+  
+  // Add hash if it exists
+  if (parsedOriginal.hash) {
+    fullUrl += parsedOriginal.hash;
+  }
+  
+  return fullUrl;
+}
+
 // Create server
 const server = http.createServer((req, res) => {
   const host = req.headers.host;
@@ -65,15 +98,17 @@ const server = http.createServer((req, res) => {
     return;
   }
   
-  // Find redirect
-  const redirectUrl = findRedirect(host, redirects);
+  // Find redirect base URL
+  const redirectBaseUrl = findRedirect(host, redirects);
   
-  if (redirectUrl) {
-    // Redirect found
-    console.log(`Redirecting ${host} -> ${redirectUrl}`);
+  if (redirectBaseUrl) {
+    // Build full redirect URL with path and params
+    const fullRedirectUrl = buildRedirectUrl(redirectBaseUrl, req.url);
     
-    res.writeHead(302, {
-      'Location': redirectUrl,
+    console.log(`Redirecting ${host}${req.url} -> ${fullRedirectUrl}`);
+    
+    res.writeHead(301, {
+      'Location': fullRedirectUrl,
       'Content-Type': 'text/html'
     });
     
@@ -82,11 +117,11 @@ const server = http.createServer((req, res) => {
       <html>
       <head>
         <title>Redirecting...</title>
-        <meta http-equiv="refresh" content="0; url=${redirectUrl}">
+        <meta http-equiv="refresh" content="0; url=${fullRedirectUrl}">
       </head>
       <body>
-        <h1>Redirecting to ${redirectUrl}</h1>
-        <p><a href="${redirectUrl}">Click here if not redirected</a></p>
+        <h1>Redirecting to ${fullRedirectUrl}</h1>
+        <p><a href="${fullRedirectUrl}">Click here if not redirected</a></p>
       </body>
       </html>
     `);
@@ -119,7 +154,7 @@ server.listen(PORT, () => {
     console.log(`  ${from} -> ${to}`);
   });
   
-  console.log(`\nTest with: curl -H "Host: old-site.com" http://localhost:${PORT}/`);
+  console.log(`\nTest with: curl -H "Host: ai.brimind.pro" http://localhost:${PORT}/signup?ref=67375D40`);
 });
 
 // Graceful shutdown
